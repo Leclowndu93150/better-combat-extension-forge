@@ -1,0 +1,30 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.leclowndu93150.bettercombatextension.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "bettercombatextension.refmap.json",
+  "mixins": [
+    "bettercombat.PlayerAttackHelperMixin",
+    "bettercombat.api.WeaponAttributesAttackMixin",
+    "bettercombat.api.WeaponAttributesHelperMixin",
+    "bettercombat.api.WeaponAttributesMixin",
+    "bettercombat.client.collision.TargetFinderMixin",
+    "entity.LivingEntityMixin",
+    "entity.attribute.EntityAttributesMixin",
+    "entity.damage.DamageSourcesMixin",
+    "entity.player.PlayerEntity_BetterCombatReplacementMixin"
+  ],
+  "client": [
+    "client.MinecraftClient_BetterCombatReplacementMixin",
+    "client.MouseMixin",
+    "client.network.AbstractClientPlayerEntity_BetterCombatReplacementMixin",
+    "client.network.ClientPlayerEntityMixin_BetterCombatReplacementMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
