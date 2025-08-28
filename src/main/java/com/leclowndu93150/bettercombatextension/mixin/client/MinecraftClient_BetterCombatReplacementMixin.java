@@ -26,6 +26,7 @@ import net.bettercombat.logic.WeaponRegistry;
 import net.bettercombat.mixin.client.MinecraftClientAccessor;
 import net.bettercombat.network.Packets;
 import net.bettercombat.utils.PatternMatching;
+import com.leclowndu93150.bettercombatextension.network.ExtensionNetworkHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
@@ -425,7 +426,7 @@ public abstract class MinecraftClient_BetterCombatReplacementMixin implements Mi
 					this.setComboCount(this.getComboCount() + 1);
 					AttackHand hand = this.getCurrentHand();
 					if (hand != null && BetterCombatExtension.isStaminaAttributesLoaded) {
-						ClientPlayNetworking.send(new AttackStaminaCostPacket(((DuckLivingEntityMixin) this.player).bettercombatextension$getAttackStaminaCost() * ((DuckWeaponAttributesAttackMixin) (Object) hand.attack()).bettercombatextension$getStaminaCostMultiplier() * serverConfig.global_feint_stamina_cost_multiplier.get()));
+						ExtensionNetworkHandler.sendToServer(new AttackStaminaCostPacket(((DuckLivingEntityMixin) this.player).bettercombatextension$getAttackStaminaCost() * ((DuckWeaponAttributesAttackMixin) (Object) hand.attack()).bettercombatextension$getStaminaCostMultiplier() * serverConfig.global_feint_stamina_cost_multiplier.get()));
 					}
 				}
 			} else {
@@ -433,7 +434,7 @@ public abstract class MinecraftClient_BetterCombatReplacementMixin implements Mi
 				if (hand != null) {
 					WeaponAttributes.Attack attack = hand.attack();
 					if (BetterCombatExtension.isStaminaAttributesLoaded) {
-						ClientPlayNetworking.send(new AttackStaminaCostPacket(((DuckLivingEntityMixin) this.player).bettercombatextension$getAttackStaminaCost() * ((DuckWeaponAttributesAttackMixin) (Object) attack).bettercombatextension$getStaminaCostMultiplier() * serverConfig.global_attack_stamina_cost_multiplier.get()));
+						ExtensionNetworkHandler.sendToServer(new AttackStaminaCostPacket(((DuckLivingEntityMixin) this.player).bettercombatextension$getAttackStaminaCost() * ((DuckWeaponAttributesAttackMixin) (Object) attack).bettercombatextension$getStaminaCostMultiplier() * serverConfig.global_attack_stamina_cost_multiplier.get()));
 					}
 					double upswingRate = hand.upswingRate();
 					if (!((double) this.player.getAttackStrengthScale(0.0F) < 1.0 - upswingRate)) {

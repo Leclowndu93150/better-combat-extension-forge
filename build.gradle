@@ -157,6 +157,7 @@ dependencies {
     implementation fg.deobf("curse.maven:cloth-config-348521:5729105")
     implementation fg.deobf("curse.maven:stamina-attributes-1060742:5974923")
     implementation fg.deobf("curse.maven:better-combat-by-daedelus-639842:5625757")
+    implementation fg.deobf("curse.maven:kotlin-for-forge-351264:5402061")
 
     compileOnly "dev.su5ed.sinytra.fabric-api:fabric-api:0.92.2+1.11.12+1.20.1"
     runtimeOnly fg.deobf("dev.su5ed.sinytra.fabric-api:fabric-api:0.92.2+1.11.12+1.20.1")

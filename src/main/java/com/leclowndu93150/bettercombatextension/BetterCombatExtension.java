@@ -1,16 +1,11 @@
 package com.leclowndu93150.bettercombatextension;
 
 import com.leclowndu93150.bettercombatextension.config.ServerConfig;
-import com.leclowndu93150.bettercombatextension.packet.AttackStaminaCostPacket;
-import com.leclowndu93150.bettercombatextension.packet.AttackStaminaCostPacketReceiver;
+import com.leclowndu93150.bettercombatextension.network.ExtensionNetworkHandler;
 import com.github.theredbrain.staminaattributes.entity.StaminaUsingEntity;
-import com.leclowndu93150.bettercombatextension.packet.CancelAttackPacket;
-import com.leclowndu93150.bettercombatextension.packet.CancelAttackPacketReceiver;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import me.fzzyhmstrs.fzzy_config.api.RegisterType;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraftforge.fml.ModList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -29,11 +24,21 @@ public class BetterCombatExtension{
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static ServerConfig SERVER_CONFIG = ConfigApiJava.registerAndLoadConfig(ServerConfig::new, RegisterType.BOTH);
 
-	public static final boolean isShoulderSurfingLoaded = FabricLoader.getInstance().isModLoaded("shouldersurfing");
+	public static boolean isShoulderSurfingLoaded = false;
 
-	public static final boolean isStaminaAttributesLoaded = FabricLoader.getInstance().isModLoaded("staminaattributes");
+	public static boolean isStaminaAttributesLoaded = false;
 
 	public static Attribute ATTACK_STAMINA_COST;
+
+	public BetterCombatExtension() {
+		// Initialize mod loading checks
+		if (ModList.get() != null) {
+			isShoulderSurfingLoaded = ModList.get().isLoaded("shouldersurfing");
+			isStaminaAttributesLoaded = ModList.get().isLoaded("staminaattributes");
+		}
+		
+		ExtensionNetworkHandler.register();
+	}
 
 	public static float getCurrentStamina(LivingEntity livingEntity) {
 		float currentStamina = 0.0F;
@@ -47,12 +52,6 @@ public class BetterCombatExtension{
 		if (isStaminaAttributesLoaded) {
 			((StaminaUsingEntity) livingEntity).staminaattributes$addStamina(amount);
 		}
-	}
-
-	public BetterCombatExtension() {
-		ServerPlayNetworking.registerGlobalReceiver(AttackStaminaCostPacket.TYPE, new AttackStaminaCostPacketReceiver());
-
-		if(FMLLoader.getDist().isClient()) ClientPlayNetworking.registerGlobalReceiver(CancelAttackPacket.TYPE, new CancelAttackPacketReceiver());
 	}
 
 	public static ResourceLocation identifier(String path) {

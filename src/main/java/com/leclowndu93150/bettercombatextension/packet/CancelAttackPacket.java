@@ -1,16 +1,15 @@
 package com.leclowndu93150.bettercombatextension.packet;
 
-import com.leclowndu93150.bettercombatextension.BetterCombatExtension;
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.bettercombat.api.MinecraftClient_BetterCombat;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkEvent;
 
-public class CancelAttackPacket implements FabricPacket {
-	public static final PacketType<CancelAttackPacket> TYPE = PacketType.create(
-			BetterCombatExtension.identifier("cancel_attack"),
-			CancelAttackPacket::new
-	);
+import java.util.function.Supplier;
 
+public class CancelAttackPacket {
 	public final int entityId;
 
 	public CancelAttackPacket(int entityId) {
@@ -21,13 +20,23 @@ public class CancelAttackPacket implements FabricPacket {
 		this(buf.readInt());
 	}
 
-	@Override
-	public PacketType<?> getType() {
-		return TYPE;
+	public void toBytes(FriendlyByteBuf buf) {
+		buf.writeInt(this.entityId);
 	}
 
-	@Override
-	public void write(FriendlyByteBuf buf) {
-		buf.writeInt(this.entityId);
+	public static void handle(CancelAttackPacket packet, Supplier<NetworkEvent.Context> contextSupplier) {
+		NetworkEvent.Context context = contextSupplier.get();
+		context.enqueueWork(() -> {
+			LocalPlayer player = Minecraft.getInstance().player;
+			int entityId = packet.entityId;
+
+			if (player != null && player.level().getEntity(entityId) != null) {
+				Player player2 = (Player) player.level().getEntity(entityId);
+				if (player2 != null && player == player2) {
+					((MinecraftClient_BetterCombat) Minecraft.getInstance()).cancelUpswing();
+				}
+			}
+		});
+		context.setPacketHandled(true);
 	}
 }
