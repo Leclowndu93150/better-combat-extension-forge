@@ -1,6 +1,7 @@
 package com.leclowndu93150.bettercombatextension.packet;
 
 import com.leclowndu93150.bettercombatextension.BetterCombatExtension;
+import com.leclowndu93150.bettercombatextension.network.ExtensionNetworkHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -50,7 +51,7 @@ public class AttackStaminaCostPacket {
 				} else {
 					if (currentStamina <= 0 && !player.isCreative()) {
 						BetterCombatExtension.LOGGER.warn("CANCELING ATTACK: Insufficient stamina!");
-						com.leclowndu93150.bettercombatextension.network.ExtensionNetworkHandler.sendToPlayer(new CancelAttackPacket(player.getId()), player);
+						ExtensionNetworkHandler.sendToPlayer(new CancelAttackPacket(player.getId()), player);
 					} else {
 						BetterCombatExtension.LOGGER.info("Attack allowed, deducting {} stamina", staminaCost);
 						BetterCombatExtension.addStamina(player, -staminaCost);

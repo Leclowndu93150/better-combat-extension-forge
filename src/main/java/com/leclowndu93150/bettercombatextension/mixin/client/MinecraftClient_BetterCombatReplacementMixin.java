@@ -27,8 +27,10 @@ import net.bettercombat.mixin.client.MinecraftClientAccessor;
 import net.bettercombat.network.Packets;
 import net.bettercombat.utils.PatternMatching;
 import com.leclowndu93150.bettercombatextension.network.ExtensionNetworkHandler;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraftforge.client.event.RenderGuiEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.bettercombat.forge.network.NetworkHandler;
+import net.bettercombat.forge.network.PacketWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
@@ -117,7 +119,7 @@ public abstract class MinecraftClient_BetterCombatReplacementMixin implements Mi
 
 	@Unique
 	private void setupTextRenderer() {
-		HudRenderCallback.EVENT.register((context, f) -> {
+		MinecraftForge.EVENT_BUS.addListener((RenderGuiEvent.Post event) -> {
 			if (this.textToRender != null && !this.textToRender.isEmpty()) {
 				Minecraft client = Minecraft.getInstance();
 				Font textRenderer = client.gui.getFont();
@@ -142,8 +144,8 @@ public abstract class MinecraftClient_BetterCombatReplacementMixin implements Mi
 					int var10002 = k - 2;
 					int var10003 = j + i + 2;
 					Objects.requireNonNull(textRenderer);
-					context.fill(var10001, var10002, var10003, k + 9 + 2, client.options.getBackgroundColor(0));
-					context.drawString(textRenderer, this.textToRender, j, k, 16777215 + (l << 24));
+					event.getGuiGraphics().fill(var10001, var10002, var10003, k + 9 + 2, client.options.getBackgroundColor(0));
+					event.getGuiGraphics().drawString(textRenderer, this.textToRender, j, k, 16777215 + (l << 24));
 					RenderSystem.disableBlend();
 				}
 			}
@@ -309,7 +311,7 @@ public abstract class MinecraftClient_BetterCombatReplacementMixin implements Mi
 					boolean isOffHand = hand.isOffHand();
 					AnimatedHand animatedHand = AnimatedHand.from(isOffHand, attributes.isTwoHanded());
 					((PlayerAttackAnimatable) this.player).playAttackAnimation(animationName, animatedHand, attackCooldownTicksFloat, upswingRate);
-					ClientPlayNetworking.send(Packets.AttackAnimation.ID, (new Packets.AttackAnimation(this.player.getId(), animatedHand, animationName, attackCooldownTicksFloat, upswingRate)).write());
+					NetworkHandler.INSTANCE.sendToServer(new PacketWrapper(false, Packets.AttackAnimation.ID, (new Packets.AttackAnimation(this.player.getId(), animatedHand, animationName, attackCooldownTicksFloat, upswingRate)).write()));
 //                    ClientPlayNetworking.send(new AttackStaminaCostPacket(((DuckWeaponAttributesAttackMixin) (Object) hand.attack()).bettercombatextension$getStaminaCost()));
 					BetterCombatClientEvents.ATTACK_START.invoke((handler) -> {
 						handler.onPlayerAttackStart(this.player, hand);
@@ -445,7 +447,7 @@ public abstract class MinecraftClient_BetterCombatReplacementMixin implements Mi
 							PlatformClient.onEmptyLeftClick(this.player);
 						}
 
-						ClientPlayNetworking.send(Packets.C2S_AttackRequest.ID, (new Packets.C2S_AttackRequest(this.getComboCount(), this.player.isShiftKeyDown(), this.player.getInventory().selected, targets)).write());
+						NetworkHandler.INSTANCE.sendToServer(new PacketWrapper(false, Packets.C2S_AttackRequest.ID, (new Packets.C2S_AttackRequest(this.getComboCount(), this.player.isShiftKeyDown(), this.player.getInventory().selected, targets)).write()));
 						Iterator var7 = targets.iterator();
 
 						while (var7.hasNext()) {
@@ -502,7 +504,7 @@ public abstract class MinecraftClient_BetterCombatReplacementMixin implements Mi
 	private void cancelWeaponSwing() {
 		int downWind = (int) Math.round((double) PlayerAttackHelper.getAttackCooldownTicksCapped(this.player) * (1.0 - 0.5 * (double) BetterCombat.config.upswing_multiplier));
 		((PlayerAttackAnimatable) this.player).stopAttackAnimation((float) downWind);
-		ClientPlayNetworking.send(Packets.AttackAnimation.ID, Packets.AttackAnimation.stop(this.player.getId(), downWind).write());
+		NetworkHandler.INSTANCE.sendToServer(new PacketWrapper(false, Packets.AttackAnimation.ID, Packets.AttackAnimation.stop(this.player.getId(), downWind).write()));
 		this.upswingStack = null;
 		this.rightClickDelay = 0;
 		this.setMiningCooldown(0);
